@@ -19,7 +19,7 @@ Labels = categorical(Labels)';
 % ---- Raw Signal Data for train and test --- %
 [XTrain, YTrain, XTest, YTest] = train_test_prepare(Signals,Labels);
 
-% ---- Define the LSTM Network Architecture --- %
+% ---- Define the BiLSTM Network Architecture --- %
 layers = [ sequenceInputLayer(1)
            bilstmLayer(32,'OutputMode','last')
            tanhLayer('Name','tanh1')
@@ -33,7 +33,7 @@ layers = [ sequenceInputLayer(1)
 
 % --- specify the training options for the classifier --- %
 options = trainingOptions('adam', ...
-    'MaxEpochs',60, ...
+    'MaxEpochs',43, ...
     'MiniBatchSize', 64, ...
     'LearnRateSchedule','piecewise', ...
     'LearnRateDropFactor',0.5, ...
@@ -42,15 +42,16 @@ options = trainingOptions('adam', ...
     'GradientThreshold', 1, ...
     'ExecutionEnvironment',"auto",...
     'plots','training-progress', ...
-    'Verbose',false,...
-    'ValidationData',{XTest,YTest},...
-    'OutputFcn',@(info)savetrainingplot(info));
+    'Verbose',false);% , 'ValidationData',{XTest,YTest});
 
-% ---  Train the LSTM Network --- %
-net = trainNetwork(XTrain,YTrain,layers,options);
+% ---  Train the BiLSTM Network --- %
+[net, info] = trainNetwork(XTrain,YTrain,layers,options);
 
 net_NoNoise = net;
-save net_NoNoise  % Save - need to change the name in order to avoid overwrite
+net_NoNoiseInfo = info;
+
+save net_NoNoise      % Save - need to change the name in order to avoid overwrite
+save net_NoNoiseInfo  % Save - need to change the name in order to avoid overwrite
 
 % --- Visualize the Training and Testing Accuracy --- %
 trainPred = classify(net,XTrain);
@@ -60,6 +61,4 @@ testPred = classify(net,XTest);
 LSTMAccuracyTest = sum(testPred == YTest)/numel(YTest)*100
 
 cm = confusionchart(YTest,testPred);
-cm.Title = 'Confusion Chart for LSTM';
-
-
+cm.Title = 'Confusion Chart for BiLSTM';
