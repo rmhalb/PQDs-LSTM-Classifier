@@ -2,8 +2,8 @@ clc
 clear all
 
 %---- Load Database ---- %
-load('16PQDs_4800_NoNoise.mat')
-%load('16PQDs_4800_WithNoise.mat')
+%load('16PQDs_4800_NoNoise.mat')
+load('16PQDs_4800_WithNoise.mat') % From the signal fenerator database creator
 
 SignalsDataBaseCell = struct2cell(SignalsDataBase);
 
@@ -33,7 +33,7 @@ layers = [ sequenceInputLayer(1)
 
 % --- specify the training options for the classifier --- %
 options = trainingOptions('adam', ...
-    'MaxEpochs',43, ...
+    'MaxEpochs',63, ...
     'MiniBatchSize', 64, ...
     'LearnRateSchedule','piecewise', ...
     'LearnRateDropFactor',0.5, ...
@@ -46,12 +46,9 @@ options = trainingOptions('adam', ...
 
 % ---  Train the BiLSTM Network --- %
 [net, info] = trainNetwork(XTrain,YTrain,layers,options);
+save('net_WithNoise.mat','net');      % Save - need to change the name in order to avoid overwrite
+save('net_WithNoiseInfo.mat','info'); % Save - need to change the name in order to avoid overwrite
 
-net_NoNoise = net;
-net_NoNoiseInfo = info;
-
-save net_NoNoise      % Save - need to change the name in order to avoid overwrite
-save net_NoNoiseInfo  % Save - need to change the name in order to avoid overwrite
 
 % --- Visualize the Training and Testing Accuracy --- %
 trainPred = classify(net,XTrain);
@@ -62,3 +59,4 @@ LSTMAccuracyTest = sum(testPred == YTest)/numel(YTest)*100
 
 cm = confusionchart(YTest,testPred);
 cm.Title = 'Confusion Chart for BiLSTM';
+
