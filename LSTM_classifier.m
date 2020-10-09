@@ -3,7 +3,7 @@ clear all
 
 %---- Load Database ---- %
 %load('16PQDs_4800_NoNoise.mat')
-load('16PQDs_4800_WithNoise.mat') % From the signal fenerator database creator
+load('16PQDs_4800_WithNoise.mat') % From the signal generator database creator
 
 SignalsDataBaseCell = struct2cell(SignalsDataBase);
 
